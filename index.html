@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Valentine 💖</title>
+
+    <style>
+        @font-face {
+            font-family: 'Doloman';
+            src: url('DolomanPavljenko.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at top, #1a2a6c, #000);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        html {
+            height: -webkit-fill-available;
+        }
+
+        .card-container {
+            position: relative;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            aspect-ratio: 1 / 1.4;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .card-container.visible {
+            display: block;
+            opacity: 1;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* === КНОПКИ === */
+
+        .answer-btn {
+            position: absolute;
+            background: linear-gradient(180deg, #1b2a6d 0%, #0e1640 100%);
+            cursor: pointer;
+            z-index: 10;
+            touch-action: manipulation;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            clip-path: polygon(
+                10% 0%,
+                90% 0%,
+                97% 50%,
+                90% 100%,
+                10% 100%,
+                3% 50%
+            );
+
+            box-shadow:
+                0 6px 12px rgba(0,0,0,0.6),
+                inset 0 0 0 rgba(255,255,255,0);
+
+            outline: 2px solid #ffd700;
+            outline-offset: -2px;
+
+            transition: all 0.25s ease;
+            animation: fadeIn 1s ease forwards;
+        }
+
+        .answer-btn span {
+            font-size: clamp(1rem, 3.5vw, 1.4rem);
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #f5e6b2;
+            text-shadow:
+                0 0 6px rgba(255,215,120,0.9),
+                0 0 12px rgba(255,215,120,0.6);
+            pointer-events: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-yes span {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+        }
+
+        .answer-btn:active {
+            background: linear-gradient(180deg, #f4c77e 0%, #d9a85f 100%);
+            box-shadow:
+                0 0 18px rgba(255,215,120,0.9),
+                0 0 35px rgba(255,215,120,0.6);
+            outline-color: #ffed4e;
+            transform: scale(0.96);
+        }
+
+        .answer-btn.hover-cascade {
+            background: linear-gradient(180deg, #f4c77e 0%, #d9a85f 100%);
+            box-shadow:
+                0 0 18px rgba(255,215,120,0.9),
+                0 0 35px rgba(255,215,120,0.6);
+            outline-color: #ffed4e;
+        }
+
+        .answer-btn.hover-cascade span {
+            color: #4b2a00;
+            text-shadow: none;
+        }
+
+        .answer-btn.selected {
+            background: linear-gradient(180deg, #ffcc70 0%, #ff9f1c 100%);
+            box-shadow:
+                0 0 25px rgba(255,180,60,1),
+                0 0 45px rgba(255,140,0,0.9);
+            outline-color: #ffed4e;
+        }
+
+        .answer-btn.selected span {
+            color: #4b2a00;
+            text-shadow: none;
+        }
+
+        /* === ПОЗИЦИИ КНОПОК === */
+
+        .btn-yes {
+            top: 80%;
+            left: 9%;
+            width: 35%;
+            height: 7%;
+        }
+
+        .btn-a {
+            top: 80%;
+            left: 56%;
+            width: 35%;
+            height: 7%;
+        }
+
+        .btn-b {
+            top: 88%;
+            left: 9%;
+            width: 35%;
+            height: 7%;
+        }
+
+        .btn-c {
+            top: 88%;
+            left: 56%;
+            width: 35%;
+            height: 7%;
+        }
+
+        /* === РЕЗУЛЬТАТ === */
+
+        .result-message {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 20;
+            text-align: center;
+            padding: 20px;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .result-message.show {
+            opacity: 1;
+        }
+
+        .result-text {
+            font-size: clamp(1.5rem, 5vw, 2.4rem);
+            color: #ffcc70;
+            font-weight: 700;
+            font-family: 'Doloman', 'Times New Roman', Times, serif;
+            text-shadow: 0 0 20px rgba(255,200,80,0.9);
+            margin-bottom: 30px;
+            padding: 0 10px;
+        }
+
+        /* === КНОПКА-СЕРДЕЧКО === */
+        .heart-btn {
+            position: absolute;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            outline: none;
+            box-shadow: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            overflow: visible;
+        }
+
+        .heart-btn:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        
+        .heart-btn:active {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .heart-emoji {
+            font-size: clamp(4rem, 15vw, 7rem);
+            line-height: 1;
+            filter: drop-shadow(0 0 30px rgba(255,107,157,0.9));
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        .heart-text {
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-weight: 400;
+            font-family: 'Doloman', 'Times New Roman', Times, serif;
+            color: #ffcc70;
+            text-shadow: 0 0 20px rgba(255,200,80,0.9);
+        }
+
+        .heart-btn:active .heart-emoji {
+            transform: scale(0.95);
+        }
+
+        /* === ЭКРАН С ПРИЗНАНИЕМ === */
+        .love-declaration {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 1s ease;
+            cursor: pointer;
+        }
+        
+        .love-declaration.show {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .love-image {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+        }
+
+        /* === ФИНАЛЬНАЯ СТРАНИЦА === */
+        .final-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            display: none;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            z-index: 30;
+            padding: 15px 15px 30px 15px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            touch-action: manipulation;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .final-page.show {
+            opacity: 1;
+        }
+        
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* Добавляем "зерно" через псевдоэлемент */
+        .final-page::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255,255,255,0.03) 2px,
+                    rgba(255,255,255,0.03) 4px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255,255,255,0.03) 2px,
+                    rgba(255,255,255,0.03) 4px
+                );
+            opacity: 0.4;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .final-page > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        .final-page h1 {
+            font-size: clamp(1.4rem, 5vw, 2rem);
+            color: #fff;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 3px 8px rgba(0,0,0,0.3);
+            font-weight: 700;
+            font-family: 'Doloman', 'Times New Roman', Times, serif;
+            position: relative;
+            z-index: 10;
+        }
+
+        .road-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            height: clamp(280px, 60vh, 360px);
+            flex-shrink: 0;
+            z-index: 1;
+            margin-bottom: 20px;
+        }
+
+        /* SVG дорожка */
+        .road-svg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        /* Точки остановки */
+        .stop-point {
+            position: absolute;
+            width: clamp(18px, 4vw, 22px);
+            height: clamp(18px, 4vw, 22px);
+            background: #fff;
+            border: 3px solid #FF6B9D;
+            border-radius: 50%;
+            box-shadow: 0 3px 10px rgba(255,107,157,0.5);
+            z-index: 2;
+            transform: translate(-50%, -50%);
+        }
+
+        .stop-point.active {
+            background: #FF6B9D;
+            animation: pulse 1s ease infinite;
+        }
+
+        .stop-1 { top: 10%; left: 70%; }
+        .stop-2 { top: 50%; left: 50%; }
+        .stop-3 { top: 90%; left: 30%; }
+
+        /* Информационные карточки */
+        .info-card {
+            position: absolute;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 12px 16px;
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            min-width: clamp(140px, 40vw, 200px);
+            max-width: clamp(180px, 50vw, 240px);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.4s ease;
+            text-align: center;
+        }
+
+        .info-card.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .info-card-1 {
+            top: 2%;
+            right: 20%;
+        }
+
+        .info-card-2 {
+            top: 45%;
+            left: 5%;
+        }
+
+        .info-card-3 {
+            top: 82%;
+            right: 5%;
+        }
+
+        .info-emoji {
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            margin-bottom: 6px;
+        }
+        
+        .info-card-1 .info-emoji {
+            margin-left: -40px;
+        }
+
+        .info-text {
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            color: #2a2a2a;
+            font-weight: 700;
+            font-family: 'Doloman', 'Times New Roman', Times, serif;
+            line-height: 1.3;
+            text-shadow: 
+                0 0 8px rgba(255,255,255,0.9),
+                0 0 12px rgba(255,255,255,0.7),
+                1px 1px 2px rgba(255,255,255,0.8);
+            margin-bottom: 6px;
+        }
+
+        .info-details {
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            color: #3a3a3a;
+            font-weight: 400;
+            font-family: 'Doloman', 'Times New Roman', Times, serif;
+            line-height: 1.4;
+            opacity: 1;
+            text-shadow: 
+                0 0 6px rgba(255,255,255,0.9),
+                0 0 8px rgba(255,255,255,0.7),
+                1px 1px 2px rgba(255,255,255,0.8);
+        }
+
+        .info-place-name {
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        /* Машинка */
+        .car {
+            position: absolute;
+            font-size: clamp(2rem, 7vw, 3rem);
+            z-index: 5;
+            transition: all 0.1s linear;
+        }
+
+        .car.driving {
+            animation: bump 0.4s ease-in-out infinite;
+        }
+
+        @keyframes bump {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            50% {
+                transform: translate(0, -3px) rotate(-1deg);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: translate(-50%, -50%) scale(1);
+                box-shadow: 0 3px 10px rgba(255,107,157,0.5);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3);
+                box-shadow: 0 5px 16px rgba(255,107,157,0.8);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* iPhone специфичные медиа-запросы */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                min-height: -webkit-fill-available;
+            }
+        }
+
+        /* iPhone SE и маленькие экраны */
+        @media (max-width: 375px) {
+            .card-container {
+                max-height: 85vh;
+            }
+            
+            .final-page {
+                padding: 15px 10px;
+            }
+
+            .road-container {
+                height: clamp(250px, 65vh, 350px);
+            }
+
+            .info-card {
+                padding: 10px 12px;
+            }
+        }
+
+        /* iPhone Pro Max и большие экраны */
+        @media (min-width: 428px) {
+            .card-container {
+                max-width: 500px;
+            }
+        }
+
+        /* Landscape orientation */
+        @media (orientation: landscape) and (max-height: 500px) {
+            body {
+                padding: 5px;
+            }
+
+            .card-container {
+                max-height: 95vh;
+            }
+
+            .final-page {
+                padding: 10px;
+            }
+
+            .final-page h1 {
+                font-size: 1.2rem;
+                margin-bottom: 10px;
+            }
+
+            .road-container {
+                height: 55vh;
+            }
+        }
+        
+        /* === СТАРТОВАЯ СТРАНИЦА === */
+        .start-page {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            aspect-ratio: 1 / 1.4;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+            transition: opacity 0.5s ease;
+        }
+        
+        .start-page.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .start-logo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            animation: logoPulse 2s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px rgba(255,107,157,0.4));
+        }
+        
+        @keyframes logoPulse {
+            0%, 100% {
+                transform: scale(1);
+                filter: drop-shadow(0 0 30px rgba(255,107,157,0.6));
+            }
+            50% {
+                transform: scale(1.05);
+                filter: drop-shadow(0 0 40px rgba(255,107,157,0.9));
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- Стартовая страница -->
+<div class="start-page" id="startPage">
+    <img src="Valentines_logo2.png" alt="Who wants to be Valentine" class="start-logo">
+    <audio id="logoMusic" loop>
+        <source src="For_logo1.mp4" type="audio/mp4">
+    </audio>
+</div>
+
+<div class="card-container">
+    <img src="pingion1.jpg" alt="Valentine" class="card-image">
+    
+    <audio id="questionMusic" loop>
+        <source src="For_Question.mp4" type="audio/mp4">
+    </audio>
+    
+    <audio id="buttonTapSound">
+        <source src="For_first_tap.mp4" type="audio/mp4">
+    </audio>
+
+    <button class="answer-btn btn-yes" data-choice="yes"><span>a.YES</span></button>
+    <button class="answer-btn btn-a" data-choice="a"><span>b.A</span></button>
+    <button class="answer-btn btn-b" data-choice="b"><span>c.B</span></button>
+    <button class="answer-btn btn-c" data-choice="c"><span>d.C</span></button>
+
+    <div class="result-message" id="result">
+        <audio id="resultMusic">
+            <source src="For_result.mp4" type="audio/mp4">
+        </audio>
+        <div class="result-text" id="resultText"></div>
+        <button class="heart-btn" id="heartBtn">
+            <div class="heart-emoji">❤️</div>
+            <div class="heart-text">жмав сюда</div>
+        </button>
+    </div>
+
+    <div class="final-page" id="finalPage">
+        <audio id="carMusic">
+            <source src="For_car.mp4" type="audio/mp4">
+        </audio>
+        <canvas id="gradientCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;"></canvas>
+        <h1 style="position: relative; z-index: 1;">💖 Наш план на 14 февраля 💖</h1>
+        
+        <div class="road-container">
+            <!-- SVG дорожка -->
+            <svg class="road-svg" viewBox="0 0 450 400" xmlns="http://www.w3.org/2000/svg">
+                <!-- Основная дорога -->
+                <path d="M 315 40 Q 380 80, 360 150 Q 340 220, 225 200 Q 110 180, 135 270 Q 160 360, 135 360"
+                      fill="none"
+                      stroke="rgba(255,107,157,0.3)"
+                      stroke-width="20"
+                      stroke-linecap="round"/>
+                
+                <!-- Пунктирная разметка -->
+                <path d="M 315 40 Q 380 80, 360 150 Q 340 220, 225 200 Q 110 180, 135 270 Q 160 360, 135 360"
+                      fill="none"
+                      stroke="#FF6B9D"
+                      stroke-width="4"
+                      stroke-linecap="round"
+                      stroke-dasharray="15, 20"/>
+            </svg>
+            
+            <!-- Точки остановки -->
+            <div class="stop-point stop-1" id="stop1"></div>
+            <div class="stop-point stop-2" id="stop2"></div>
+            <div class="stop-point stop-3" id="stop3"></div>
+            
+            <!-- Машинка -->
+            <div class="car" id="car">🚗</div>
+            
+            <!-- Информационные карточки -->
+            <div class="info-card info-card-1" id="card1">
+                <div class="info-emoji">🥐</div>
+                <div class="info-text">Едем завтракать</div>
+                <div class="info-details">
+                    <div class="info-place-name">Ресторан "Банщики"</div>
+                    <div>11-00</div>
+                </div>
+            </div>
+            
+            <div class="info-card info-card-2" id="card2">
+                <div class="info-emoji">👗</div>
+                <div class="info-text">Идём покупать тряпочки</div>
+                <div class="info-details">
+                    <div class="info-place-name">Тц "Галлерея"</div>
+                </div>
+            </div>
+            
+            <div class="info-card info-card-3" id="card3">
+                <div class="info-emoji">🍝</div>
+                <div class="info-text">Вечером, я готовлю ужин и делаю тебе массаж</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Экран с признанием -->
+    <div class="love-declaration" id="loveDeclaration">
+        <audio id="finalMusic" loop>
+            <source src="Final.mp4" type="audio/mp4">
+        </audio>
+        <img src="Final1.png" alt="Love" class="love-image">
+    </div>
+</div>
+
+<script>
+    // Стартовая страница
+    const startPage = document.getElementById('startPage');
+    const cardContainer = document.querySelector('.card-container');
+    const logoMusic = document.getElementById('logoMusic');
+    const questionMusic = document.getElementById('questionMusic');
+    
+    // Автозапуск музыки при загрузке страницы
+    window.addEventListener('load', () => {
+        logoMusic.play().catch(error => {
+            console.log('Автозапуск заблокирован браузером:', error);
+            // Если автозапуск заблокирован, запускаем при первом клике
+            startPage.addEventListener('click', () => {
+                logoMusic.play();
+            }, { once: true });
+        });
+    });
+    
+    startPage.addEventListener('click', () => {
+        // Немедленно останавливаем музыку логотипа
+        logoMusic.pause();
+        logoMusic.currentTime = 0;
+        
+        // Начинаем затухание стартовой страницы
+        startPage.classList.add('hidden');
+        
+        // Показываем card-container с задержкой для плавного перехода
+        setTimeout(() => {
+            startPage.style.display = 'none';
+            cardContainer.style.display = 'block';
+            
+            // Небольшая задержка перед добавлением opacity для анимации
+            setTimeout(() => {
+                cardContainer.classList.add('visible');
+                // Запускаем музыку вопроса
+                questionMusic.volume = 1;
+                questionMusic.play();
+            }, 50);
+        }, 500);
+    });
+    
+    const buttons = document.querySelectorAll('.answer-btn');
+    const result = document.getElementById('result');
+    const resultText = document.getElementById('resultText');
+    const heartBtn = document.getElementById('heartBtn');
+    const heartText = document.querySelector('.heart-text');
+    const finalPage = document.getElementById('finalPage');
+    const buttonTapSound = document.getElementById('buttonTapSound');
+    const resultMusic = document.getElementById('resultMusic');
+    const carMusic = document.getElementById('carMusic');
+    const loveDeclaration = document.getElementById('loveDeclaration');
+    const finalMusic = document.getElementById('finalMusic');
+
+    const btnYes = document.querySelector('.btn-yes');
+    const btnA = document.querySelector('.btn-a');
+    const btnB = document.querySelector('.btn-b');
+    const btnC = document.querySelector('.btn-c');
+
+    const messages = {
+        yes: "❤️ Ура! Теперь мы валентинки ❤️",
+        a: "😊 Хи-хи! Ты все равно выбрала Да",
+        b: "😄 Отличный выбор - это Да",
+        c: "😉 Тут тоже Да"
+    };
+
+    let clickCount = 0;
+    const texts = ["жмав сюда", "хе-хе жмав еще", "не попав еще жмав"];
+
+    // Функция для снятия каскадной подсветки
+    function clearCascade() {
+        buttons.forEach(b => b.classList.remove('hover-cascade'));
+    }
+
+    // Обработчики для touch устройств
+    let touchTimer;
+    
+    btnYes.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        clearCascade();
+        btnYes.classList.add('hover-cascade');
+        
+        // Воспроизводим звук нажатия
+        buttonTapSound.currentTime = 0;
+        buttonTapSound.play();
+        
+        touchTimer = setTimeout(() => {
+            btnYes.click();
+        }, 100);
+    });
+
+    btnA.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        clearCascade();
+        btnYes.classList.add('hover-cascade');
+        btnA.classList.add('hover-cascade');
+        
+        // Воспроизводим звук нажатия
+        buttonTapSound.currentTime = 0;
+        buttonTapSound.play();
+        
+        touchTimer = setTimeout(() => {
+            btnA.click();
+        }, 100);
+    });
+
+    btnB.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        clearCascade();
+        btnYes.classList.add('hover-cascade');
+        btnA.classList.add('hover-cascade');
+        btnB.classList.add('hover-cascade');
+        
+        // Воспроизводим звук нажатия
+        buttonTapSound.currentTime = 0;
+        buttonTapSound.play();
+        
+        touchTimer = setTimeout(() => {
+            btnB.click();
+        }, 100);
+    });
+
+    btnC.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        clearCascade();
+        btnYes.classList.add('hover-cascade');
+        btnA.classList.add('hover-cascade');
+        btnB.classList.add('hover-cascade');
+        btnC.classList.add('hover-cascade');
+        
+        // Воспроизводим звук нажатия
+        buttonTapSound.currentTime = 0;
+        buttonTapSound.play();
+        
+        touchTimer = setTimeout(() => {
+            btnC.click();
+        }, 100);
+    });
+
+    buttons.forEach(btn => {
+        btn.addEventListener('touchend', (e) => {
+            clearTimeout(touchTimer);
+        });
+        btn.addEventListener('touchcancel', (e) => {
+            clearTimeout(touchTimer);
+            clearCascade();
+        });
+    });
+
+    // Обработчики клика по кнопкам ответа
+    buttons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            buttons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+
+            // Немедленно останавливаем музыку вопроса
+            questionMusic.pause();
+            questionMusic.currentTime = 0;
+
+            const choice = btn.dataset.choice;
+            resultText.textContent = messages[choice];
+            result.style.display = 'flex';
+            
+            // Плавное появление
+            setTimeout(() => {
+                result.classList.add('show');
+                // Запускаем музыку результата
+                resultMusic.volume = 1;
+                resultMusic.currentTime = 0;
+                resultMusic.play();
+            }, 50);
+            
+            // Сброс счетчика и текста кнопки
+            clickCount = 0;
+            heartText.textContent = texts[0];
+            heartBtn.style.position = 'absolute';
+            heartBtn.style.top = '58%';
+            heartBtn.style.left = '50%';
+            heartBtn.style.transform = 'translate(-50%, 0)';
+        });
+    });
+
+    // Обработчик клика по кнопке-сердечку
+    // Переменные для управления анимацией
+    let currentStage = 0;
+    let moveToStop2Func = null;
+    let moveToStop3Func = null;
+
+    // Анимация машинки
+    function startCarAnimation() {
+        const car = document.getElementById('car');
+        const stop1 = document.getElementById('stop1');
+        const stop2 = document.getElementById('stop2');
+        const stop3 = document.getElementById('stop3');
+        const card1 = document.getElementById('card1');
+        const card2 = document.getElementById('card2');
+        const card3 = document.getElementById('card3');
+
+        const path = [
+            { left: '75%', top: '0%' },    // Старт дальше
+            { left: '74%', top: '3%' },    // Промежуточная точка
+            { left: '73%', top: '6%' },    // Точка 1 - выше и правее
+            { left: '71%', top: '12%' },
+            { left: '73%', top: '15%' },
+            { left: '75%', top: '18%' },
+            { left: '77%', top: '22%' },
+            { left: '78%', top: '26%' },
+            { left: '79%', top: '30%' },
+            { left: '80%', top: '34%' },
+            { left: '80%', top: '38%' },
+            { left: '78%', top: '42%' },
+            { left: '75%', top: '45%' },
+            { left: '72%', top: '47%' },
+            { left: '68%', top: '49%' },
+            { left: '64%', top: '50%' },
+            { left: '60%', top: '50.5%' },
+            { left: '56%', top: '50.5%' },
+            { left: '52%', top: '50.3%' },
+            { left: '50%', top: '50%' },   // Точка 2
+            { left: '47%', top: '50%' },
+            { left: '43%', top: '50.5%' },
+            { left: '39%', top: '52%' },
+            { left: '36%', top: '54%' },
+            { left: '33%', top: '57%' },
+            { left: '31%', top: '61%' },
+            { left: '29.5%', top: '65%' },
+            { left: '29%', top: '69%' },
+            { left: '29%', top: '73%' },
+            { left: '29.5%', top: '77%' },
+            { left: '30%', top: '81%' },
+            { left: '30.5%', top: '85%' },
+            { left: '27%', top: '90%' }    // Точка 3
+        ];
+
+        let currentStep = 0;
+        car.classList.add('driving');
+
+        const moveInterval = setInterval(() => {
+            if (currentStep < 3) {  // Останавливаемся на индексе 3 (новая первая остановка)
+                car.style.left = path[currentStep].left;
+                car.style.top = path[currentStep].top;
+                currentStep++;
+            } else {
+                clearInterval(moveInterval);
+                car.classList.remove('driving');
+                stop1.classList.add('active');
+                card1.classList.add('show');
+                currentStage = 1;
+            }
+        }, 120);  // Замедлил с 80 до 120
+
+        moveToStop2Func = function() {
+            if (currentStage !== 1) return;
+            
+            car.classList.add('driving');
+            const interval2 = setInterval(() => {
+                if (currentStep < 20) {  // Скорректировал индекс для второй остановки
+                    car.style.left = path[currentStep].left;
+                    car.style.top = path[currentStep].top;
+                    currentStep++;
+                } else {
+                    clearInterval(interval2);
+                    car.classList.remove('driving');
+                    stop2.classList.add('active');
+                    card2.classList.add('show');
+                    currentStage = 2;
+                }
+            }, 120);  // Замедлил с 80 до 120
+        };
+
+        moveToStop3Func = function() {
+            if (currentStage !== 2) return;
+            
+            car.classList.add('driving');
+            const interval3 = setInterval(() => {
+                if (currentStep < path.length) {
+                    car.style.left = path[currentStep].left;
+                    car.style.top = path[currentStep].top;
+                    currentStep++;
+                } else {
+                    clearInterval(interval3);
+                    car.classList.remove('driving');
+                    stop3.classList.add('active');
+                    card3.classList.add('show');
+                    currentStage = 3;
+                }
+            }, 120);  // Замедлил с 80 до 120
+        };
+    }
+
+    // Обработчик клика/тапа по финальной странице
+    
+    finalPage.addEventListener('click', () => {
+        if (currentStage === 1 && moveToStop2Func) {
+            moveToStop2Func();
+        } else if (currentStage === 2 && moveToStop3Func) {
+            moveToStop3Func();
+        } else if (currentStage === 3) {
+            // Показываем экран с признанием
+            // Останавливаем музыку машинки
+            carMusic.pause();
+            carMusic.currentTime = 0;
+            
+            // Показываем экран с признанием
+            loveDeclaration.style.display = 'flex';
+            setTimeout(() => {
+                loveDeclaration.classList.add('show');
+                // Запускаем финальную музыку
+                finalMusic.volume = 1;
+                finalMusic.currentTime = 0;
+                finalMusic.play();
+            }, 50);
+        }
+    });
+
+    // Обработчик кликов на финальном экране с признанием - 3 клика возвращают к началу
+    let loveClickCount = 0;
+    loveDeclaration.addEventListener('click', () => {
+        loveClickCount++;
+        
+        if (loveClickCount >= 3) {
+            // Сбрасываем счетчик
+            loveClickCount = 0;
+            
+            // Останавливаем финальную музыку
+            finalMusic.pause();
+            finalMusic.currentTime = 0;
+            
+            // Скрываем экран с признанием
+            loveDeclaration.classList.remove('show');
+            setTimeout(() => {
+                loveDeclaration.style.display = 'none';
+                
+                // Скрываем все экраны
+                cardContainer.style.display = 'none';
+                cardContainer.classList.remove('visible');
+                finalPage.style.display = 'none';
+                finalPage.classList.remove('show');
+                result.style.display = 'none';
+                result.classList.remove('show');
+                
+                // Сбрасываем все состояния
+                buttons.forEach(btn => {
+                    btn.classList.remove('selected', 'hover-cascade');
+                    btn.style.display = 'flex';
+                });
+                
+                clickCount = 0;
+                currentStage = 0;
+                heartText.textContent = 'жмав сюда';
+                heartBtn.style.top = '';
+                heartBtn.style.left = '';
+                heartBtn.style.transform = '';
+                
+                // Сбрасываем анимацию машинки
+                const car = document.getElementById('car');
+                const stop1 = document.getElementById('stop1');
+                const stop2 = document.getElementById('stop2');
+                const stop3 = document.getElementById('stop3');
+                const card1 = document.getElementById('card1');
+                const card2 = document.getElementById('card2');
+                const card3 = document.getElementById('card3');
+                
+                car.style.left = '';
+                car.style.top = '';
+                car.classList.remove('driving');
+                
+                stop1.classList.remove('active');
+                stop2.classList.remove('active');
+                stop3.classList.remove('active');
+                
+                card1.classList.remove('show');
+                card2.classList.remove('show');
+                card3.classList.remove('show');
+                
+                // Останавливаем градиент если он запущен
+                if (gradientAnimationId) {
+                    cancelAnimationFrame(gradientAnimationId);
+                    gradientAnimationId = null;
+                }
+                
+                // Показываем стартовую страницу
+                startPage.style.display = 'flex';
+                startPage.classList.remove('hidden');
+                
+                // Запускаем музыку логотипа
+                logoMusic.currentTime = 0;
+                logoMusic.play();
+            }, 500);
+        }
+    });
+
+    // Предотвращение зума при двойном тапе
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            e.preventDefault();
+        }
+        lastTouchEnd = now;
+    }, false);
+
+    // WebGL Shader Gradient
+    let gradientAnimationId = null;
+    
+    function initGradient() {
+        const canvas = document.getElementById('gradientCanvas');
+        if (!canvas) return;
+        
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) {
+            console.error('WebGL not supported');
+            canvas.style.background = 'linear-gradient(-45deg, #ff4f8a, #db9b7d, #de87e1, #ff6b9d)';
+            return;
+        }
+        
+        // Устанавливаем размер canvas
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        resizeCanvas();
+        
+        // Vertex shader
+        const vertexShaderSource = `
+            attribute vec2 position;
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0);
+            }
+        `;
+        
+        // Fragment shader с параметрами из ShaderGradient
+        const fragmentShaderSource = `
+            precision mediump float;
+            uniform vec2 resolution;
+            uniform float time;
+            
+            // Цвета из конфигурации
+            vec3 color1 = vec3(1.0, 0.31, 0.54); // #ff4f8a
+            vec3 color2 = vec3(0.86, 0.61, 0.49); // #db9b7d
+            vec3 color3 = vec3(0.87, 0.53, 0.88); // #de87e1
+            
+            // Noise функция
+            float noise(vec2 p) {
+                return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+            }
+            
+            void main() {
+                vec2 uv = gl_FragCoord.xy / resolution.xy;
+                
+                // Параметры из конфигурации
+                float uSpeed = 0.4;
+                float uFrequency = 5.5;
+                float uAmplitude = 1.0;
+                float uDensity = 1.3;
+                float uStrength = 4.0;
+                
+                // Создаем волновой эффект
+                float wave1 = sin(uv.x * uFrequency + time * uSpeed) * 
+                             cos(uv.y * uFrequency + time * uSpeed) * uAmplitude * 0.1;
+                
+                float wave2 = sin(uv.x * uDensity - time * uSpeed * 0.5) * 
+                             cos(uv.y * uDensity + time * uSpeed * 0.3) * uStrength * 0.05;
+                
+                // Комбинируем волны
+                float mixValue = uv.y + wave1 + wave2;
+                
+                // Смешиваем цвета
+                vec3 color = mix(color1, color2, smoothstep(0.0, 0.5, mixValue));
+                color = mix(color, color3, smoothstep(0.4, 1.0, mixValue));
+                
+                // Grain эффект
+                float grain = noise(uv + time * 0.01) * 0.05;
+                color += grain - 0.025;
+                
+                // Яркость 1.2
+                color *= 1.2;
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+        
+        // Компилируем шейдеры
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+        
+        const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+        const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+        
+        // Создаем программу
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error('Program link error:', gl.getProgramInfoLog(program));
+            return;
+        }
+        
+        gl.useProgram(program);
+        
+        // Создаем прямоугольник на весь экран
+        const positions = new Float32Array([
+            -1, -1,
+            1, -1,
+            -1, 1,
+            1, 1
+        ]);
+        
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+        
+        const positionLocation = gl.getAttribLocation(program, 'position');
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+        
+        // Получаем uniform locations
+        const resolutionLocation = gl.getUniformLocation(program, 'resolution');
+        const timeLocation = gl.getUniformLocation(program, 'time');
+        
+        // Анимация
+        let startTime = Date.now();
+        
+        function render() {
+            const currentTime = (Date.now() - startTime) * 0.001; // в секундах
+            
+            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+            gl.uniform1f(timeLocation, currentTime);
+            
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            
+            gradientAnimationId = requestAnimationFrame(render);
+        }
+        
+        render();
+        
+        // Обработчик изменения размера
+        window.addEventListener('resize', resizeCanvas);
+    }
+    
+    // Запускаем градиент когда показывается финальная страница
+    const originalFinalPageDisplay = function() {
+        // Немедленно останавливаем музыку результата
+        resultMusic.pause();
+        resultMusic.currentTime = 0;
+        
+        finalPage.style.display = 'flex';
+        
+        // Плавное появление
+        setTimeout(() => {
+            finalPage.classList.add('show');
+            // Запускаем музыку машинки с ограничением на 2 проигрывания
+            carMusic.volume = 1;
+            carMusic.currentTime = 0;
+            let playCount = 0;
+            
+            carMusic.addEventListener('ended', function onEnded() {
+                playCount++;
+                if (playCount < 2) {
+                    carMusic.currentTime = 0;
+                    carMusic.play();
+                } else {
+                    carMusic.removeEventListener('ended', onEnded);
+                }
+            });
+            
+            carMusic.play();
+        }, 50);
+        
+        startCarAnimation();
+        setTimeout(initGradient, 50);
+    };
+    
+    // Модифицируем обработчик клика по сердечку
+    const originalHeartClickHandler = heartBtn.onclick;
+    heartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        clickCount++;
+        
+        if (clickCount === 1) {
+            heartText.textContent = texts[1];
+            heartBtn.style.top = '60%';
+            heartBtn.style.left = '20%';
+            heartBtn.style.transform = 'translate(-50%, 0)';
+        } else if (clickCount === 2) {
+            heartText.textContent = texts[2];
+            heartBtn.style.top = '60%';
+            heartBtn.style.left = '80%';
+            heartBtn.style.transform = 'translate(-50%, 0)';
+        } else if (clickCount === 3) {
+            // Немедленно останавливаем музыку результата перед запуском машинки
+            resultMusic.pause();
+            resultMusic.currentTime = 0;
+            
+            originalFinalPageDisplay();
+        }
+    });
+
+</script>
+
+</body>
+</html>
